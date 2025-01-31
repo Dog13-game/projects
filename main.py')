@@ -1,0 +1,108 @@
+import time
+# Секундомір
+def stopwatch():
+    input("Натисніть Enter, щоб почати...")
+    start_time = time.time()
+    print("Секундомір запущено! Натисніть Enter, щоб зупинити.")
+    input()
+    elapsed_time = time.time() - start_time
+    print(f"Час: {elapsed_time:.2f} секунд")
+    print("Дякуємо, що скористалися нашими послугами!")
+
+# покращений конвертер валют
+def currency_converter():
+    try:
+        cash = int(input("Введіть суму яку хочете конвертувати: "))
+    except ValueError:
+        print("Ви ввели неправильне значення або порожній рядок")
+    else:
+        convert = input("В яку валюту хочете перевести (EUR/USD/zl/JPY): ")
+        if convert == "EUR":
+            print(f" (cash) гривень це {cash/43:.2f}")
+        if convert == "USD":
+            print(f"{cash} гривень це {cash/42:.2f}")
+        if convert == "zl":
+             print(f"{cash} гривень це {cash/10:.2f}")
+        if convert == "JPY":
+             print(f"{cash} гривень це {cash/0,27:.2f}")
+    finally:
+        print("Дякуємо, що скористалися нашими послугами!")
+
+# Функції телефонної книги
+contacts = {}
+def add_contact(name, phone):
+    contacts[name] = phone
+    print(f"Контакт {name} додано.")
+
+def delete_contact(name):
+    if name in contacts:
+        del contacts[name]
+        print(f"Контакт {name} видалено.")
+    else:
+        print(f"Контакт {name} не знайдено.")
+
+def search_contact(name):
+    if name in contacts:
+        print(f"{name}: {contacts[name]}")
+    else:
+        print(f"Контакт {name} не знайдено.")
+        
+def list_contacts():
+    if contacts:
+        for name, phone in contacts.items():
+            print(f"{name}: {phone}")
+    else:
+        print("Телефонна книга порожня.")
+# телефонна книга
+def phone_book():
+    while True:
+        print("\nТелефонна книга")
+        print("1. Додати контакт")
+        print("2. Видалити контакт")
+        print("3. Пошук контакту")
+        print("4. Вивести всі контакти")
+        print("5. Вихід")
+        try:
+            choice = input("Виберіть опцію (1-5): ")
+        except:
+            print("Неправильний вибір. Будь ласка, спробуйте ще раз.")
+        else:
+            if choice == '1':
+                name = input("Введіть ім'я: ")
+                phone = input("Введіть номер телефону: ")
+                add_contact(name, phone)
+            elif choice == '2':
+                name = input("Введіть ім'я для видалення: ")
+                delete_contact(name)
+            elif choice == '3':
+                name = input("Введіть ім'я для пошуку: ")
+                search_contact(name)
+            elif choice == '4':
+                list_contacts()
+            elif choice == '5':
+                break
+
+
+
+
+
+
+while True:
+    print("1 - секундомір,\n2 - телефонна книга,\n3 - конвертер валют,\n4 - вийти")
+
+    try:
+        user_choice = int(input("Введіть свій вибір: "))
+    except ValueError:
+        print("Ви ввели неправильне значення або порожній рядок")
+    else:
+        if user_choice == 1:
+          stopwatch()
+        elif user_choice == 2:
+            phone_book()
+        elif user_choice == 3:
+            currency_converter()
+        elif user_choice == 4:
+            break   
+    finally:
+            print("Можете спробувати ще раз")
+
