@@ -1,0 +1,76 @@
+import pygame
+import random
+
+# Ініціалізація Pygame
+pygame.init()
+
+# Налаштування екрану
+WIDTH, HEIGHT = 500, 500
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Aim Trainer")
+
+# Кольори
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+BACKGROUND_COLORS = [(240, 240, 240), (220, 220, 220), (200, 200, 200), (180, 180, 180), (160, 160, 160)]  # Темніючий фон
+
+# Початкові значення
+x, y = random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50)
+RADIUS = 30
+current_circle_color = (255, 0, 0)  # Початковий колір кола (червоний)
+background_color_index = 0
+
+# Змінні для таймера
+last_move_time = 0
+MOVE_INTERVAL = 1000  # Інтервал у мілісекундах (1 секунда)
+
+# Змінна для підрахунку очок
+score = 0
+
+# Основний цикл гри
+running = True
+while running:
+    # Заповнюємо фон екрану
+    screen.fill(BACKGROUND_COLORS[background_color_index])
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:  # Якщо користувач закрив вікно
+            running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:  # Якщо натиснуто кнопку миші
+            mouse_x, mouse_y = event.pos
+            distance = ((mouse_x - x) ** 2 + (mouse_y - y) ** 2) ** 0.5  # Обчислення відстані до цілі
+            if distance <= RADIUS:  # Якщо клік потрапив у ціль
+                score += 1  # Збільшуємо рахунок
+                x, y = random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50)  # Переміщуємо ціль
+
+                # Змінюємо колір кола після влучання
+                current_circle_color = (
+                    random.randint(0, 255),
+                    random.randint(0, 255),
+                    random.randint(0, 255),
+                )
+
+                # Змінюємо фон після кожного п’ятого влучання
+                if score % 5 == 0 and background_color_index < len(BACKGROUND_COLORS) - 1:
+                    background_color_index += 1
+
+    # Записуємо в змінну поточний час
+    current_time = pygame.time.get_ticks()
+
+    # Переміщуємо фігуру у випадкове місце щосекунди
+    if current_time - last_move_time >= MOVE_INTERVAL:
+        x, y = random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50)
+        last_move_time = current_time
+
+    # Малюємо ціль
+    pygame.draw.circle(screen, current_circle_color, (x, y), RADIUS)
+
+    # Відображаємо рахунок
+    font = pygame.font.Font(None, 36)
+    score_text = font.render(f"Очки: {score}", True, GREEN)
+    screen.blit(score_text, (10, 10))
+
+    # Оновлення екрану
+    pygame.display.flip()
+
+pygame.quit()
