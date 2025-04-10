@@ -1,0 +1,183 @@
+import pygame
+import random
+
+# Ініціалізація Pygame
+pygame.init()
+
+# Налаштування екрану
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Flappy Bird")
+
+clock = pygame.time.Clock()
+
+# Кольори
+WHITE = (255, 255, 255)
+GREEN = (0, 163, 108)
+BLACK = (0, 0, 0)
+
+# Завантаження персонажів
+characters = [
+    pygame.image.load("D:/Artem's projects/projects/1.png"),
+    pygame.image.load("D:/Artem's projects/projects/2.png"),
+    pygame.image.load("D:/Artem's projects/projects/3.png"),
+    pygame.image.load("D:/Artem's projects/projects/4.png"),
+    pygame.image.load("D:/Artem's projects/projects/5.png"),
+    pygame.image.load("D:/Artem's projects/projects/6.png")
+]
+
+# Масштабуємо зображення
+characters = [pygame.transform.smoothscale(char, (50, 50)) for char in characters]
+
+# Завантаження фонів
+backgrounds = [
+    pygame.image.load("D:/Artem's projects/projects/background1.jpg"),
+    pygame.image.load("D:/Artem's projects/projects/background2.png"),
+    pygame.image.load("D:/Artem's projects/projects/background3.png"),
+    pygame.image.load("D:/Artem's projects/projects/background4.png"),
+    pygame.image.load("D:/Artem's projects/projects/background5.png"),
+    pygame.image.load("D:/Artem's projects/projects/background6.png")
+]
+backgrounds = [pygame.transform.scale(bg, (WIDTH, HEIGHT)) for bg in backgrounds]
+
+# Фіксована кількість фонів
+background_count = 6
+
+# Функція для вибору персонажа
+def choose_character():
+    selected = 0
+    while True:
+        screen.fill(WHITE)
+        font = pygame.font.Font(None, 36)
+        text = font.render("Виберіть персонажа за допомогою стрілок, Enter для підтвердження", True, BLACK)
+        screen.blit(text, (50, 50))
+
+        # Координати персонажів
+        x_positions_top = [150, 350, 550]
+        x_positions_bottom = [150, 350, 550]
+        y_position_top = 150
+        y_position_bottom = 300
+
+        for i in range(3):
+            if i == selected:
+                pygame.draw.rect(screen, GREEN, (x_positions_top[i] - 5, y_position_top - 5, 60, 60), 5)
+            screen.blit(characters[i], (x_positions_top[i], y_position_top))
+
+        for i in range(3, 6):
+            if i == selected:
+                pygame.draw.rect(screen, GREEN, (x_positions_bottom[i - 3] - 5, y_position_bottom - 5, 60, 60), 5)
+            screen.blit(characters[i], (x_positions_bottom[i - 3], y_position_bottom))
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT and selected > 0:
+                    selected -= 1
+                elif event.key == pygame.K_RIGHT and selected < 5:
+                    selected += 1
+                elif event.key == pygame.K_DOWN and selected < 3:
+                    selected += 3
+                elif event.key == pygame.K_UP and selected >= 3:
+                    selected -= 3
+                elif event.key == pygame.K_RETURN:
+                    return characters[selected]
+
+# Функція для показу "Game Over"
+def show_game_over(score):
+    while True:
+        screen.fill(WHITE)
+        font = pygame.font.Font(None, 60)
+        text = font.render(f"Гра завершена! Ваші очки: {score}", True, BLACK)
+        restart_text = pygame.font.Font(None, 40).render("Натисніть Enter, щоб почати знову", True, BLACK)
+        screen.blit(text, (WIDTH // 4, HEIGHT // 3))
+        screen.blit(restart_text, (WIDTH // 4, HEIGHT // 2))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                return
+
+# Початок гри
+while True:
+    cat_img = choose_character()
+    cat = cat_img.get_rect()
+    cat.topleft = (100, 100)
+    speed = 0
+    gravity = 0.5
+    jump_speed = -8
+    obstacle_timer = 0
+    obstacles = []
+    score = 0
+    current_background = 0
+
+    running = True
+    while running:
+        screen.blit(backgrounds[current_background], (0, 0))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                speed = jump_speed
+
+        speed += gravity
+        cat.y += speed
+
+        if cat.y > HEIGHT - cat.height:
+            cat.y = HEIGHT - cat.height
+            speed = 0
+
+        obstacle_timer += 1
+        if obstacle_timer > 250:
+            top_obstacle_height = random.randint(100, 400)
+            bottom_obstacle_height = HEIGHT - top_obstacle_height - 150
+            top_obstacle = pygame.Rect(WIDTH, 0, 50, top_obstacle_height)
+            bottom_obstacle = pygame.Rect(WIDTH, HEIGHT - bottom_obstacle_height, 50, bottom_obstacle_height)
+            obstacles.append((top_obstacle, bottom_obstacle))
+            obstacle_timer = 0
+
+        for top_obstacle, bottom_obstacle in obstacles:
+            top_obstacle.x -= 5
+            bottom_obstacle.x -= 5
+
+            if cat.colliderect(top_obstacle) or cat.colliderect(bottom_obstacle):
+                running = False
+
+            if top_obstacle.x < -50:
+                obstacles.remove((top_obstacle, bottom_obstacle))
+                score += 1
+                if score % 5 == 0:
+                    current_background = (current_background + 1) % background_count
+
+        for top_obstacle, bottom_obstacle in obstacles:
+            pygame.draw.rect(screen, GREEN, top_obstacle)
+            pygame.draw.rect(screen, GREEN, bottom_obstacle)
+
+        screen.blit(cat_img, cat.topleft)
+        score_text = pygame.font.Font(None, 36).render(f"Очки: {score}", True, BLACK)
+        screen.blit(score_text, (10, 10))
+
+        pygame.display.update()
+        clock.tick(60)
+
+    
+    # Після завершення гри показуємо екран "Game Over"
+    show_game_over(score)
+
+    # Повернення до вибору персонажа
+    cat_img = choose_character()  # Вибір нового персонажа
+    cat = cat_img.get_rect()
+    cat.topleft = (100, 100)
+    score = 0  # Скидання рахунку перед новою грою
+    obstacles = []  # Очищення списку перешкод
+    current_background = 0  # Повертаємо фон до початкового
+
+
