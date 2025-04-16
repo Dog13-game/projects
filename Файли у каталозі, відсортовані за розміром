@@ -1,0 +1,25 @@
+import os
+
+# Отримуємо список всіх об'єктів у поточному каталозі
+all_items = os.listdir(".")
+
+# Фільтруємо лише файли
+files = [item for item in all_items if os.path.isfile(item)]
+
+# Формуємо список кортежів: (назва файлу, розмір в байтах)
+files_with_sizes = [(filename, os.path.getsize(filename)) for filename in files]
+
+# Сортуємо файл за розміром у порядку спадання
+files_sorted = sorted(files_with_sizes, key=lambda x: x[1], reverse=True)
+
+# Виводимо результати 
+print("Файли у каталозі, відсортовані за розміром (від найбільшого до найменшого):")
+for filename, size in files_sorted:
+    print(f"{filename}: {size} байт")
+
+
+
+
+
+
+
