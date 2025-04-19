@@ -1,0 +1,35 @@
+import sqlite3
+
+# Підключення до бази даних
+conn = sqlite3.connect('База данних товари в магазині')
+
+# Створення курсора
+cursor = conn.cursor()
+
+# Створення таблиці (якщо її ще немає)
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS Shop (
+
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name TEXT,
+Price FLOAT,
+Description TEXT
+
+
+)
+''')
+
+# Вставка запису
+cursor.execute("INSERT INTO Shop (name, Price, Description) VALUES ('Компютер', 2000.50, 'Високопродуктивна система, яка розроблена для виконання складних завдань, таких як 3D-рендеринг, відеомонтаж, машинне навчання, програмування, моделювання та інші ресурсоємні процеси.')")
+cursor.execute("INSERT INTO Shop (name, Price, Description) VALUES ('Ноутбук', 1323.25, 'Високоякісний пристрій, який поєднує у собі потужність, стильний дизайн і передові технології. Він створений для професіоналів, творчих людей і тих, хто цінує продуктивність та комфорт')")
+
+# Підтвердження змін
+conn.commit()
+
+# Перевірка результату (вибірка всіх записів)
+cursor.execute("SELECT * FROM Shop")
+print(cursor.fetchall()) # Вивести всі записи з таблиці
+
+# Закриття з'єднання
+conn.close()
+
