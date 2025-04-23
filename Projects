@@ -1,0 +1,139 @@
+#Класна робота
+import sqlite3
+
+# Підключення до бази даних
+conn = sqlite3.connect('База данних1')
+
+# Створення курсора
+cursor = conn.cursor()
+
+# Створення таблиці (якщо її ще немає)
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS users (
+
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name TEXT,
+age INTEGER
+
+)
+''')
+
+# Вставка одного запису
+#cursor.execute("INSERT INTO users (name, age) VALUES ('Чарлі', 5)")
+
+# Підтвердження змін
+conn.commit()
+
+
+cursor.execute("SELECT * FROM users")
+print(cursor.fetchall()) 
+cursor.execute("SELECT id, name, age FROM users WHERE age > 18")
+print(cursor.fetchall())
+cursor.execute("SELECT id, name, age FROM users WHERE name LIKE '_а%'")
+print(cursor.fetchall())
+cursor.execute("SELECT id, name, age FROM users WHERE name LIKE 'А%'")
+print(cursor.fetchall())
+
+# Закриття з'єднання
+conn.close()
+
+
+
+
+
+
+import sqlite3
+
+# Підключення до бази даних (створюється файл restaurant.db)
+conn = sqlite3.connect("restaurant.db")
+cursor = conn.cursor()
+
+# 1. Створення таблиці menu
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS menu (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    dish_name TEXT,
+    category TEXT,
+    price FLOAT,
+    available TEXT
+)
+''')
+
+# 2. Додавання записів в таблицю menu (окремі запити)
+cursor.execute("INSERT INTO menu (dish_name, category, price, available) VALUES ('Борщ', 'Супи', 10.00, 'Ні')")
+cursor.execute("INSERT INTO menu (dish_name, category, price, available) VALUES ('Паста Болоньєзе', 'Основні страви', 16.50, 'Так')")
+cursor.execute("INSERT INTO menu (dish_name, category, price, available) VALUES ('Стейк', 'Основні страви', 25.00, 'Так')")
+cursor.execute("INSERT INTO menu (dish_name, category, price, available) VALUES ('Суші Філадельфія', 'Основні страви', 14.00, 'Ні')")
+cursor.execute("INSERT INTO menu (dish_name, category, price, available) VALUES ('Тірамісу', 'Десерти', 9.50, 'Так')")
+cursor.execute("INSERT INTO menu (dish_name, category, price, available) VALUES ('Чизкейк', 'Десерти', 8.00, 'Так')")
+cursor.execute("INSERT INTO menu (dish_name, category, price, available) VALUES ('Піца Маргарита', 'Основні страви', 11.00, 'Так')")
+cursor.execute("INSERT INTO menu (dish_name, category, price, available) VALUES ('Шоколадний фондан', 'Десерти', 10.50, 'Ні')")
+
+conn.commit()
+
+# 3. Виконання SQL-запитів
+
+# 3.1. Пошук страв, де в назві є слово "Паста"
+print("\nСтрави, які містять 'Паста' у назві:")
+print(cursor.execute("SELECT * FROM menu WHERE dish_name LIKE '%Паста%'").fetchall())
+
+# 3.2. Пошук всіх страв з категорії "Основні страви"
+print("\nСтрави з категорії 'Основні страви':")
+print(cursor.execute("SELECT * FROM menu WHERE category = 'Основні страви'").fetchall())
+
+# 3.3. Пошук страв, де ціна більше за 15 і вони є в наявності
+print("\nСтрави, дорожчі за 15 і доступні:")
+print(cursor.execute("SELECT * FROM menu WHERE price > 15 AND available = 'Так'").fetchall())
+
+# Закриття підключення до бази даних
+conn.close()
+
+
+
+
+#Домашня робота
+
+import sqlite3
+
+# Підключення до бази даних (створюється файл favorites.db, якщо його ще немає)
+conn = sqlite3.connect("favorites.db")
+cursor = conn.cursor()
+
+# 1. Створення таблиці favorites
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS favorites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    genre TEXT,
+    release_year INTEGER,
+    rating FLOAT,
+    comments TEXT
+)
+''')
+
+# 2. Додавання записів за допомогою окремих SQL-запитів
+cursor.execute("INSERT INTO favorites (title, genre, release_year, rating, comments) VALUES ('Гаррі Поттер', 'Fantasy', 1997, 9.5, 'Улюблена серія про чарівний світ.')")
+cursor.execute("INSERT INTO favorites (title, genre, release_year, rating, comments) VALUES ('П''ятнадцятирічний капітан', 'Adventure', 2005, 8.0, 'Пригодницька історія про маленького капітана.')")
+cursor.execute("INSERT INTO favorites (title, genre, release_year, rating, comments) VALUES ('Запах думок', 'Psychological', 2015, 8.5, 'Незвична історія з глибоким змістом.')")
+conn.commit()
+
+# 3. Виконання SQL-запитів із використанням фільтрації та виведення результатів без циклу for
+
+# 3.1. Виведення всіх записів
+print("Всі записи:")
+print(cursor.execute("SELECT * FROM favorites").fetchall())
+
+# 3.2. Фільтрація за жанром: шукаємо записи, де жанр містить 'Fantasy'
+print("\nЗаписи з жанром, що містить 'Fantasy':")
+print(cursor.execute("SELECT * FROM favorites WHERE genre LIKE '%Fantasy%'").fetchall())
+
+# 3.3. Фільтрація за роком випуску: шукаємо записи, де рік випуску більше за 2010
+print("\nЗаписи з роком випуску більше за 2010:")
+print(cursor.execute("SELECT * FROM favorites WHERE release_year > 2010").fetchall())
+
+# Закриття підключення до бази даних
+conn.close()
+
+
+
+
