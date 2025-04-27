@@ -1,0 +1,228 @@
+import sqlite3
+
+# Підключення до бази даних SQLite
+conn = sqlite3.connect("users.db")
+cursor = conn.cursor()
+
+# Створення таблиці (якщо її ще не існує)
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    age INTEGER
+)
+''')
+conn.commit()
+
+# Функції для роботи з базою даних
+def add_user():
+    name = input("Введіть ім'я користувача: ")
+    age = input("Введіть вік: ")
+
+    try:
+        age = int(age)
+        if name and age > 0:
+            cursor.execute(f"INSERT INTO users (name, age) VALUES ('{name}', {age})")
+            conn.commit()
+            print("Користувача додано")
+        else:
+            print("Помилка: введіть коректне ім'я та позитивний вік.")
+    except ValueError:
+        print("Помилка: вік має бути числом.")
+
+def update_age():
+    name = input("Введіть ім'я користувача, якому потрібно змінити вік: ")
+    new_age = input("Введіть новий вік: ")
+
+    try:
+        new_age = int(new_age)
+        cursor.execute(f"SELECT * FROM users WHERE name = '{name}'")
+        if cursor.fetchone():
+            cursor.execute(f"UPDATE users SET age = {new_age} WHERE name = '{name}'")
+            conn.commit()
+            print("Вік оновлено")
+        else:
+            print("Користувач не знайдений")
+    except ValueError:
+        print("Помилка: введіть коректний вік.")
+
+def delete_user():
+    name = input("Введіть ім'я користувача для видалення: ")
+    
+    cursor.execute(f"SELECT * FROM users WHERE name = '{name}'")
+    if cursor.fetchone():
+        cursor.execute(f"DELETE FROM users WHERE name = '{name}'")
+        conn.commit()
+        print("Користувача видалено")
+    else:
+        print("Користувач не знайдений")
+
+def find_user():
+    name = input("Введіть ім'я для пошуку: ")
+    cursor.execute(f"SELECT * FROM users WHERE name LIKE '%{name}%'")
+    print(cursor.fetchall())  # Виводимо всі знайдені записи одним викликом
+
+def view_users():
+    cursor.execute("SELECT * FROM users")
+    print(cursor.fetchall())  # Виводимо всі користувачів одним викликом
+
+# Головний цикл програми (бескінечний)
+while True:
+    print("\nМеню:")
+    print("1 - Додати користувача")
+    print("2 - Змінити вік користувача")
+    print("3 - Видалити користувача")
+    print("4 - Знайти користувача")
+    print("5 - Вивести всіх користувачів")
+    print("6 - Вихід")
+
+    choice = input("Виберіть дію: ")
+
+    if choice == "1":
+        add_user()
+    elif choice == "2":
+        update_age()
+    elif choice == "3":
+        delete_user()
+    elif choice == "4":
+        find_user()
+    elif choice == "5":
+        view_users()
+    elif choice == "6":
+        print("Вихід із програми")
+        break
+    else:
+        print("Помилка: введіть правильний номер.")
+
+# Закриття бази даних
+conn.close()
+
+
+
+
+
+
+
+
+import sqlite3
+import tkinter as tk
+
+# Підключення до бази даних SQLite
+conn = sqlite3.connect("users.db")
+cursor = conn.cursor()
+
+# Створення таблиці (якщо її ще не існує)
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    age INTEGER
+)
+''')
+conn.commit()
+
+# Оновлення повідомлень
+def update_message(text):
+    message_label.config(text=text)
+
+# Функція для відображення користувачів
+def view_users():
+    cursor.execute("SELECT * FROM users")
+    users = cursor.fetchall()
+
+    listbox.delete(0, tk.END)  # Очищення списку перед оновленням
+
+    if users:
+        listbox.insert(tk.END, users)  # Вставляємо список користувачів
+    else:
+        listbox.insert(tk.END, "База користувачів порожня")
+
+# Функції для роботи з базою
+def add_user():
+    name = name_entry.get()
+    age = age_entry.get()
+
+    try:
+        age = int(age)
+        if name and age > 0:
+            cursor.execute(f"INSERT INTO users (name, age) VALUES ('{name}', {age})")
+            conn.commit()
+            update_message("Користувача додано")
+            view_users()  # Оновлення списку після додавання
+        else:
+            update_message("Помилка: введіть коректне ім'я та позитивний вік.")
+    except ValueError:
+        update_message("Помилка: вік має бути числом.")
+
+def update_age():
+    name = name_entry.get()
+    new_age = age_entry.get()
+
+    try:
+        new_age = int(new_age)
+        cursor.execute(f"SELECT * FROM users WHERE name = '{name}'")
+        if cursor.fetchone():
+            cursor.execute(f"UPDATE users SET age = {new_age} WHERE name = '{name}'")
+            conn.commit()
+            update_message("Вік оновлено")
+            view_users()  # Оновлення списку після зміни
+        else:
+            update_message("Користувач не знайдений")
+    except ValueError:
+        update_message("Помилка: введіть коректний вік.")
+
+def delete_user():
+    name = name_entry.get()
+
+    cursor.execute(f"SELECT * FROM users WHERE name = '{name}'")
+    if cursor.fetchone():
+        cursor.execute(f"DELETE FROM users WHERE name = '{name}'")
+        conn.commit()
+        update_message("Користувача видалено")
+        view_users()  # Оновлення списку після видалення
+    else:
+        update_message("Користувач не знайдений")
+
+def find_user():
+    name = name_entry.get()
+    cursor.execute(f"SELECT * FROM users WHERE name LIKE '%{name}%'")
+    users = cursor.fetchall()
+    
+    if users:
+        update_message(str(users))  # Відображення результатів пошуку
+    else:
+        update_message("Користувача не знайдено")
+
+# Головне вікно (ще більше)
+root = tk.Tk()
+root.title("Управління користувачами")
+root.geometry("900x700")  # Значно збільшений розмір вікна
+
+# Введення даних
+tk.Label(root, text="Ім'я:", font=("Arial", 14)).pack()
+name_entry = tk.Entry(root, width=70, font=("Arial", 12))  # Збільшене поле введення
+name_entry.pack()
+
+tk.Label(root, text="Вік:", font=("Arial", 14)).pack()
+age_entry = tk.Entry(root, width=70, font=("Arial", 12))  # Збільшене поле введення
+age_entry.pack()
+
+# Кнопки
+tk.Button(root, text="Додати користувача", font=("Arial", 12), command=add_user).pack()
+tk.Button(root, text="Змінити вік", font=("Arial", 12), command=update_age).pack()
+tk.Button(root, text="Видалити користувача", font=("Arial", 12), command=delete_user).pack()
+tk.Button(root, text="Знайти користувача", font=("Arial", 12), command=find_user).pack()
+
+# Список користувачів (ще більший)
+listbox = tk.Listbox(root, width=100, height=20, font=("Arial", 12))  # Розширене поле списку
+listbox.pack()
+
+# Поле для повідомлень
+message_label = tk.Label(root, text="", fg="red", font=("Arial", 14))
+message_label.pack()
+
+# Оновлення списку користувачів при запуску
+view_users()
+
+# Запуск програми
+root.mainloop()
