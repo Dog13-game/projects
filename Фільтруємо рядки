@@ -1,0 +1,11 @@
+
+import pandas as pd
+# Завантаження даних з файлу
+df= pd.read_csv("education.csv")
+
+
+# Фільтруємо рядки
+df_selected = df[df["Entity"] == "India"][["Entity", "Year", "Share of population with at least some basic education"]]
+
+# Вивід результату
+print(df_selected)
