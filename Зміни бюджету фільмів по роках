@@ -1,0 +1,27 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+# Створимо дані
+data = {
+    "Year": [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010],
+    "Budget": [50, 55, 60, 65, 70, 80, 85, 90, 95, 100, 110]  # Мільйони доларів
+}
+
+df = pd.DataFrame(data)
+
+# Обчислення середнього бюджету по роках
+avg_budget_by_year = df.groupby("Year")["Budget"].mean()
+
+# Побудова лінійного графіка
+plt.figure(figsize=(10, 5))
+plt.plot(avg_budget_by_year.index, avg_budget_by_year.values, marker='o', linestyle='-', color='b')
+
+# Додавання заголовку та підписів
+plt.title("Зміни бюджету фільмів по роках")
+plt.xlabel("Рік")
+plt.ylabel("Середній бюджет (млн доларів)")
+plt.grid(True)
+
+# Відображення графіка
+plt.show()
