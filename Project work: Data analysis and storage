@@ -1,0 +1,70 @@
+import tkinter as tk
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Завантажуємо датасет
+df = pd.read_csv("top-1000-trending-youtube-videos.csv")
+
+# Функція для виведення топ-5 відео за переглядами
+def show_top_videos():
+    top_videos = df.sort_values(by="Video views", ascending=False).head(5)
+    print("Топ-5 відео за переглядами:\n")
+    print(top_videos[["Video", "Video views", "Likes"]])
+
+# Функція для побудови кругової діаграми категорій відео
+def show_category_chart():
+    category_counts = df["Category"].value_counts()
+    top_categories = category_counts[:5]
+    top_categories["Інші"] = category_counts[5:].sum()
+
+    plt.figure(figsize=(8, 8))
+    plt.pie(
+        top_categories,
+        labels=top_categories.index,
+        autopct="%1.1f%%",
+        colors=plt.cm.Paired.colors,
+        startangle=140
+    )
+    plt.title("Розподіл відео за категоріями")
+    plt.show()
+
+# Функція для виведення топ-5 відео за лайками
+def show_top_liked_videos():
+    top_videos = df.sort_values(by="Likes", ascending=False).head(5)
+    print("Топ-5 відео за лайками:\n")
+    print(top_videos[["Video", "Video views", "Likes"]])
+
+# Функція для побудови графіка лайків залежно від переглядів у найпопулярнішому відео
+def plot_likes_vs_views():
+    top_video = df.sort_values(by="Video views", ascending=False).head(1)
+
+    views = top_video["Video views"].values[0]
+    likes = top_video["Likes"].values[0]
+    video_title = top_video["Video"].values[0]
+
+    plt.figure(figsize=(6, 4))
+    plt.plot([0, views], [0, likes], color="blue")  
+    plt.xlabel("Кількість переглядів")
+    plt.ylabel("Кількість лайків")
+    plt.title(f"Залежність лайків від переглядів\n{video_title}")
+    plt.grid(True)
+    plt.show()
+
+# Створення головного вікна Tkinter
+root = tk.Tk()
+root.title("Аналіз відео на YouTube")
+
+# Кнопки для виклику функцій
+tk.Button(root, text="Топ-5 відео за переглядами", command=show_top_videos).pack(pady=5)
+tk.Button(root, text="Кругова діаграма категорій", command=show_category_chart).pack(pady=5)
+tk.Button(root, text="Топ-5 відео за лайками", command=show_top_liked_videos).pack(pady=5)
+tk.Button(root, text="Графік лайків залежно від переглядів", command=plot_likes_vs_views).pack(pady=5) 
+
+# Запуск головного циклу Tkinter
+root.mainloop()
+
+
+
+
+
+
