@@ -1,0 +1,57 @@
+import customtkinter as ctk
+import bcrypt
+import random
+
+users_db = []
+
+colors = ["yellow", "lightblue", "lightgreen", "orange", "pink", "lightgray"]
+random_color = random.choice(colors)
+
+def register_user():
+    username = username_entry.get()
+    password = password_entry.get()
+
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode("utf-8"), salt)
+    
+    users_db.append({"username": username, "hashed_password": hashed_password})
+    status_label.configure(text=f"Користувач {username} успішно зареєстрований", text_color="green")
+
+def login_user():
+    username = username_entry.get()
+    password = password_entry.get()
+
+    for user in users_db:
+        if user["username"] == username:
+            if bcrypt.checkpw(password.encode("utf-8"), user["hashed_password"]):
+                status_label.configure(text=f"Ласкаво просимо, {username}", text_color="green")
+                return
+            else:
+                status_label.configure(text="Невірний пароль", text_color="red")
+                return
+
+    status_label.configure(text=f"Користувач {username} не знайдено", text_color="red")
+
+ctk.set_appearance_mode("light")
+
+root = ctk.CTk()
+root.title("Авторизація користувача")
+root.geometry("400x300")
+root.configure(fg_color=random_color)
+
+username_entry = ctk.CTkEntry(root, width=200, placeholder_text="Логін")
+username_entry.pack(pady=10)
+
+password_entry = ctk.CTkEntry(root, width=200, placeholder_text="Пароль")
+password_entry.pack(pady=10)
+
+register_button = ctk.CTkButton(root, text="Реєстрація", command=register_user, width=140)
+register_button.pack(pady=5)
+
+login_button = ctk.CTkButton(root, text="Вхід", command=login_user, width=140)
+login_button.pack(pady=5)
+
+status_label = ctk.CTkLabel(root, text="", font=("Arial", 14))
+status_label.pack(pady=10)
+
+root.mainloop()
