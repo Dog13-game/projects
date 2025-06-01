@@ -1,0 +1,109 @@
+
+import telebot
+import hashlib
+
+# Токен
+bot = telebot.TeleBot('7278157819:AAHsFlhvzKSS71CXTbGeGxKTd2JRiI-vt3c')
+
+# Масонський шифр
+masonic_cipher = {
+    'А': '@', 'Б': '#', 'В': '$', 'Г': '%', 'Ґ': '&', 'Д': '*', 'Е': '(', 
+    'Є': ')', 'Ж': '-', 'З': '_', 'И': '=', 'І': '+', 'Ї': '{', 'Й': '}', 
+    'К': '[', 'Л': ']', 'М': ';', 'Н': ':', 'О': '"', 'П': "'", 'Р': '<', 
+    'С': '>', 'Т': '/', 'У': '\\', 'Ф': '|', 'Х': '!', 'Ц': '^', 'Ч': '~', 
+    'Ш': '`', 'Щ': ',', 'Ь': '.', 'Ю': '?', 'Я': '№'
+}
+
+# Функція для шифрування масонського шифру
+def encrypt_masonic(text):
+    return "".join(masonic_cipher.get(char.upper(), char) for char in text)
+
+def decrypt_masonic(text):
+    reverse_masonic = {v: k for k, v in masonic_cipher.items()}
+    return "".join(reverse_masonic.get(char, char) for char in text)
+
+# Шифр Цезаря (з підтримкою цифр)
+def caesar_cipher(message, shift=3):  # Зсув за замовчуванням = 3
+    text = message.text
+    encrypted_text = ""
+    for char in text:
+        if char.isalpha():
+            shift_base = ord("A") if char.isupper() else ord("a")
+            encrypted_text += chr((ord(char) - shift_base + shift) % 26 + shift_base)
+        elif char.isdigit():
+            encrypted_text += str((int(char) + shift) % 10)
+        else:
+            encrypted_text += char
+    bot.reply_to(message, f"Зашифрований текст: {encrypted_text}")
+
+
+def caesar_decipher(message, shift=3):
+
+    text = message.text
+    decrypted_text = ""
+    for char in text:
+        if char.isalpha():
+            shift_base = ord("A") if char.isupper() else ord("a")
+            decrypted_text += chr((ord(char) - shift_base - shift) % 26 + shift_base)
+        elif char.isdigit():
+            decrypted_text += str((int(char) - shift) % 10)
+        else:
+            decrypted_text += char
+    bot.reply_to(message, f"Розшифрований текст: {decrypted_text}")
+
+
+# Функція хешування (SHA-256)
+def hash_text(text):
+    return hashlib.sha256(text.encode()).hexdigest()
+
+# Команда /start
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "Привіт! Я бот, що вміє шифрувати та дешифрувати текст.")
+
+# Команда /help
+@bot.message_handler(commands=['help'])
+def send_help(message):
+    bot.reply_to(message, "Я можу:\n/encrypt_masonic - шифрування масонським шифром\n/decrypt_masonic - дешифрування масонського шифру\n/encrypt_caesar - шифрування шифром Цезаря\n/decrypt_caesar - дешифрування шифру Цезаря\n/hash_text - хешування тексту (SHA-256)")
+
+# Шифрування масонського шифру
+@bot.message_handler(commands=['encrypt_masonic'])
+def encrypt_message_masonic(message):
+    text = message.text[16:]
+    if not text:
+        bot.reply_to(message, "Введіть текст для шифрування.")
+        return
+    encrypted_text = encrypt_masonic(text)
+    bot.reply_to(message, f"Зашифрований текст: {encrypted_text}")
+
+# Дешифрування масонського шифру
+@bot.message_handler(commands=['decrypt_masonic'])
+def decrypt_message_masonic(message):
+    text = message.text[16:]
+    if not text:
+        bot.reply_to(message, "Введіть текст для дешифрування.")
+        return
+    decrypted_text = decrypt_masonic(text)
+    bot.reply_to(message, f"Розшифрований текст: {decrypted_text}")
+
+# Шифрування Цезаря
+@bot.message_handler(commands=['encrypt_caesar'])
+def encrypt_command(message):
+    bot.reply_to(message, "Введіть фразу для шифрування:")
+    bot.register_next_step_handler(message, caesar_cipher)
+
+# Дешифрування Цезаря
+@bot.message_handler(commands=['decrypt_caesar'])
+def decrypt_command(message):
+    bot.reply_to(message, "Введіть фразу для дешифрування:")
+    bot.register_next_step_handler(message, caesar_decipher)
+
+# Команда для хешування тексту
+@bot.message_handler(commands=['hash_text'])
+def hash_message(message):
+    text = message.text[11:]
+    hashed = hash_text(text)
+    bot.reply_to(message, f"Хеш SHA-256: {hashed}")
+
+# Запуск бота
+bot.polling()
