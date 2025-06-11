@@ -1,0 +1,81 @@
+# Python-код
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+recipes_list = [
+    {"name": "Омлет", "type": "сніданок", "difficulty": "легка"},
+    {"name": "Млинці", "type": "сніданок", "difficulty": "середня"},
+    {"name": "Паста з соусом", "type": "обід", "difficulty": "легка"},
+    {"name": "Борщ", "type": "обід", "difficulty": "складна"},
+    {"name": "Стейк", "type": "вечеря", "difficulty": "середня"},
+    {"name": "Грильовані овочі", "type": "вечеря", "difficulty": "легка"}
+]
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    recipes = recipes_list  
+
+    if request.method == "POST":
+        meal_type = request.form.get("filter_type", "all")
+        difficulty = request.form.get("filter_difficulty", "all")
+
+        filtered_recipes = []
+
+        for recipe in recipes_list:
+            if meal_type == "all":
+                filtered_recipes.append(recipe)
+            elif recipe["type"] == meal_type:
+                filtered_recipes.append(recipe)
+
+        final_recipes = []
+
+        for recipe in filtered_recipes:
+            if difficulty == "all":
+                final_recipes.append(recipe)
+            elif recipe["difficulty"] == difficulty:
+                final_recipes.append(recipe)
+
+        recipes = final_recipes
+
+    return render_template("index6.html", recipes=recipes)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+
+
+# HTML-шаблон
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список рецептів</title>
+</head>
+<body>
+    <h1>Виберіть параметри страви</h1>
+
+    
+    <form method="POST">
+        <button type="submit" name="filter_type" value="сніданок">Сніданок</button>
+        <button type="submit" name="filter_type" value="обід">Обід</button>
+        <button type="submit" name="filter_type" value="вечеря">Вечеря</button>
+        <button type="submit" name="filter_type" value="all">Всі страви</button>
+
+        <button type="submit" name="filter_difficulty" value="легка">Легка</button>
+        <button type="submit" name="filter_difficulty" value="середня">Середня</button>
+        <button type="submit" name="filter_difficulty" value="складна">Складна</button>
+        <button type="submit" name="filter_difficulty" value="all">Будь-яка складність</button>
+    </form>
+
+    <h2>Рецепти:</h2>
+    <ol>
+        {% for recipe in recipes %}
+            <li>{{ recipe.name }} - {{ recipe.type }} ({{ recipe.difficulty }})</li>
+        {% endfor %}
+    </ol>
+</body>
+</html>
