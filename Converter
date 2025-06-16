@@ -1,0 +1,230 @@
+# Python-код
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+def convert_units(value, from_unit, to_unit):
+    conversions = {
+        # Вага без унцій
+        "mg": {"g": 0.001, "kg": 0.000001, "lb": 0.00000220462},
+        "g": {"mg": 1000, "kg": 0.001, "lb": 0.00220462},
+        "kg": {"mg": 1_000_000, "g": 1000, "lb": 2.20462},
+        "lb": {"kg": 0.453592, "g": 453.592, "mg": 453592},
+
+        # Довжина (без змін)
+        "mm": {"cm": 0.1, "m": 0.001, "km": 0.000001, "inch": 0.0393701, "ft": 0.00328084},
+        "cm": {"mm": 10, "m": 0.01, "km": 0.00001, "inch": 0.393701, "ft": 0.0328084},
+        "m": {"mm": 1000, "cm": 100, "km": 0.001, "inch": 39.3701, "ft": 3.28084},
+        "km": {"mm": 1_000_000, "cm": 100_000, "m": 1000, "inch": 39370.1, "ft": 3280.84},
+        "inch": {"mm": 25.4, "cm": 2.54, "m": 0.0254, "km": 0.0000254, "ft": 0.0833333},
+        "ft": {"mm": 304.8, "cm": 30.48, "m": 0.3048, "km": 0.0003048, "inch": 12}
+    }
+
+    if from_unit == to_unit:
+        return value
+    return value * conversions.get(from_unit, {}).get(to_unit, 1)
+
+@app.route("/")
+def home():
+    return render_template("home.html")
+
+@app.route("/length", methods=["GET", "POST"])
+def length():
+    result = None
+    if request.method == "POST":
+        try:
+            val = float(request.form["value"])
+            result = convert_units(val, request.form["from_unit"], request.form["to_unit"])
+        except ValueError:
+            result = "Помилка: введіть число!"
+    return render_template("length.html", result=result)
+
+@app.route("/weight", methods=["GET", "POST"])
+def weight():
+    result = None
+    if request.method == "POST":
+        try:
+            val = float(request.form["value"])
+            result = convert_units(val, request.form["from_unit"], request.form["to_unit"])
+        except ValueError:
+            result = "Помилка: введіть число!"
+    return render_template("weight.html", result=result)
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
+
+# home.html
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Головна</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+    <h2>Оберіть категорію</h2>
+    <form action="/length" method="get">
+        <button type="submit">Конвертер довжини 📏</button>
+    </form>
+    <form action="/weight" method="get">
+        <button type="submit">Конвертер ваги ⚖️</button>
+    </form>
+</div>
+</body>
+</html>
+
+
+# weight.html
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Конвертер ваги</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+    <h2>Конвертер ваги</h2>
+
+    <form method="post">
+        <input type="number" name="value" placeholder="Введіть значення" required step="any">
+
+        <select name="from_unit" required>
+            <option value="mg">Міліграми (mg)</option>
+            <option value="g">Грами (g)</option>
+            <option value="kg">Кілограми (kg)</option>
+            <option value="lb">Фунти (lb)</option>
+        </select>
+
+        <select name="to_unit" required>
+            <option value="mg">Міліграми (mg)</option>
+            <option value="g">Грами (g)</option>
+            <option value="kg">Кілограми (kg)</option>
+            <option value="lb">Фунти (lb)</option>
+        </select>
+
+        <button type="submit">Конвертувати</button>
+    </form>
+
+    {% if result is not none %}
+        <h3>Результат: {{ result }}</h3>
+    {% endif %}
+
+    <form action="/" method="get">
+        <button type="submit">← На головну</button>
+    </form>
+</div>
+</body>
+</html>
+
+
+
+# length.html
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Довжина</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+    <h2>Конвертер довжини</h2>
+    <form method="post">
+        <input type="number" name="value" placeholder="Введіть значення" required step="any">
+        <select name="from_unit">
+            <option value="mm">Міліметри</option>
+            <option value="cm">Сантиметри</option>
+            <option value="m">Метри</option>
+            <option value="km">Кілометри</option>
+            <option value="inch">Дюйми</option>
+            <option value="ft">Фути</option>
+        </select>
+        <select name="to_unit">
+            <option value="mm">Міліметри</option>
+            <option value="cm">Сантиметри</option>
+            <option value="m">Метри</option>
+            <option value="km">Кілометри</option>
+            <option value="inch">Дюйми</option>
+            <option value="ft">Фути</option>
+        </select>
+        <button type="submit">Конвертувати</button>
+    </form>
+    {% if result is not none %}
+        <h3>Результат: {{ result }}</h3>
+    {% endif %}
+    <a href="/"><button>← Головна</button></a>
+</div>
+</body>
+</html>
+
+
+
+# style.css
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #eaf2f8;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    background-color: #fff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+    max-width: 420px;
+    margin: 40px auto;
+}
+
+h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0 15px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 15px;
+    background-color: #fefefe;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus {
+    border-color: #4caf50;
+    outline: none;
+    box-shadow: 0 0 4px rgba(76, 175, 80, 0.4);
+}
+
+button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+    background-color: #388e3c;
+    transform: scale(1.04);
+}
+
+h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 15px;
+    color: #2e7d32;
+}
+
