@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Clicker Game</title>
+  <link rel="stylesheet" href="../static/game.css">
+  <script defer src="../script/game.js"></script>
+</head>
+<body>
+
+  <h1>Clicker Game </h1>
+
+  <p id="counter">Рахунок: {{ score }}</p>
+
+  {% if score >= 200 %}
+    <p id="level">Рівень: 5</p>
+  {% elif score >= 100 %}
+    <p id="level">Рівень: 4</p>
+  {% elif score >= 50 %}
+    <p id="level">Рівень: 3</p>
+  {% elif score >= 20 %}
+    <p id="level">Рівень: 2</p>
+  {% else %}
+    <p id="level">Рівень: 1</p>
+  {% endif %}
+
+  <button id="click_button">Клікни мене!</button>
+
+</body>
+</html>
